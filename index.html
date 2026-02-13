@@ -160,19 +160,34 @@
         if(!to) return alert("A qui est destiné ce message ? Remplis le nom ! 🧸");
         if(!msg) return alert("Le message est vide ! Écris quelque chose de gentil. ✨");
 
-        // Construction de l'URL avec les données encodées
-        const baseUrl = window.location.origin + window.location.pathname;
-        let finalUrl = `${baseUrl}?mode=${currentTab}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&msg=${encodeURIComponent(msg)}`;
-        
-        if(currentTab === 'love') {
-            finalUrl += `&gender=${selectedGender}`;
-        }
-
-        // Copie automatique
-        navigator.clipboard.writeText(finalUrl).then(() => {
-            document.getElementById('successModal').classList.remove('hidden');
-        });
+       const baseUrl = window.location.origin + window.location.pathname;
+    
+    // On construit l'URL longue d'origine
+    let longUrl = `${baseUrl}?mode=${currentTab}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&msg=${encodeURIComponent(msg)}`;
+    
+    if(currentTab === 'love') {
+        longUrl += `&gender=${selectedGender}`;
     }
+
+    // --- MAGIE : On raccourcit le lien via une API gratuite ---
+    // Nous utilisons 'is.gd' qui est gratuit et ne nécessite pas de clé API
+    fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`)
+        .then(response => response.json())
+        .then(data => {
+            const finalUrl = data.shorturl || longUrl; // Utilise le lien court si ça marche
+            
+            // On copie le lien final (court) dans le presse-papier
+            navigator.clipboard.writeText(finalUrl).then(() => {
+                document.getElementById('successModal').classList.remove('hidden');
+            });
+        })
+        .catch(err => {
+            // En cas d'erreur réseau, on donne quand même le lien long par sécurité
+            navigator.clipboard.writeText(longUrl).then(() => {
+                document.getElementById('successModal').classList.remove('hidden');
+            });
+        });
+}
 
     // --- LOGIQUE DU MINI-JEU (Ours et Bouton fuyant) ---
     function setupLoveGame() {
@@ -260,3 +275,4 @@
 </script>
 </body>
 </html>
+

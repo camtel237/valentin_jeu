@@ -5,12 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Un Message pour Toi 💌</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
+        /* Styles de base et corrections pour mobiles */
         body { touch-action: manipulation; overflow-x: hidden; font-family: 'Segoe UI', sans-serif; }
+        
+        /* Effet de verre dépoli (Glassmorphism) */
         .glass { backdrop-filter: blur(15px); background: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.4); }
+        
+        /* Animation de flottement pour l'image de l'ours */
         .floating { animation: float 3s ease-in-out infinite; }
         @keyframes float { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-12px); } }
         
+        /* Animation de défilement vers le haut pour la lettre finale */
         .scroll-text {
             animation: scrollUp 10s linear forwards; 
             position: relative;
@@ -21,16 +28,13 @@
             100% { transform: translateY(-120%); }
         }
         
-        /* Classe pour activer le scroll manuel à la fin */
+        /* Utilitaires pour l'affichage dynamique */
         .scroll-active { overflow-y: auto !important; }
-
         .animate-pop { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         .hidden { display: none !important; }
         .active-tab { background-color: #e11d48 !important; color: white !important; }
-
-        
     </style>
 </head>
 <body class="bg-gradient-to-br from-pink-200 via-rose-100 to-red-200 min-h-screen flex items-center justify-center p-4">
@@ -60,7 +64,7 @@
     <div id="form-family" class="space-y-4 text-left hidden">
         <div class="grid grid-cols-2 gap-3">
             <input id="fromFam" type="text" placeholder="Ton nom" class="w-full p-4 rounded-2xl border-none shadow-inner outline-none focus:ring-2 focus:ring-rose-400">
-            <input id="toFam" type="text" placeholder="Nom du parent/ami" class="w-full p-4 rounded-2xl border-none shadow-inner outline-none focus:ring-2 focus:ring-rose-400">
+            <input id="toFam" type="text" placeholder="Nom du destinataire" class="w-full p-4 rounded-2xl border-none shadow-inner outline-none focus:ring-2 focus:ring-rose-400">
         </div>
         <textarea id="msgFam" rows="5" placeholder="Ton message long..." class="w-full p-4 rounded-2xl border-none shadow-inner outline-none focus:ring-2 focus:ring-rose-400 resize-none"></textarea>
     </div>
@@ -80,10 +84,12 @@
     <h1 class="text-xl font-extrabold text-rose-600 mb-4 uppercase italic">📩 De <span id="loveFrom">...</span></h1>
     <img id="bearImage" src="happy1.jpeg" class="w-full h-64 object-cover rounded-2xl shadow-lg floating border-4 border-white mb-4 transition-all duration-500">
     <p id="lovePrompt" class="mb-6 text-gray-800 text-lg font-medium italic">Accepterais-tu d'être <span id="lovePossessive">ma</span> <span id="loveTarget" class="font-bold text-rose-600 underline">Valentine</span> ? 💌</p>
+    
     <div id="buttonZone" class="relative flex justify-center items-center gap-4 h-24">
         <button id="yesBtn" class="bg-red-500 text-white px-8 py-3 rounded-full font-black shadow-lg z-50 transition-transform">💖 OUI</button>
         <button id="noBtn" class="bg-gray-200 text-gray-800 px-6 py-3 rounded-full font-bold shadow-md">💔 NON</button>
     </div>
+    
     <div id="finalScreen" class="hidden space-y-3">
         <h2 class="text-2xl font-black text-red-500 uppercase animate-bounce">Je savais que tu allais dire oui ! 😍</h2>
         <button onclick="showLetterFromGame()" class="w-full bg-rose-500 text-white p-4 rounded-2xl font-black shadow-lg">📖 LIRE MA LETTRE</button>
@@ -103,24 +109,24 @@
 </div>
 
 <script>
-    // --- Préchargement des images ---
+    // --- GESTION DES IMAGES ---
     const imagesToPreload = ["sad1.jpeg", "sad2.jpeg", "sad3.jpeg", "sad4.jpeg", "cony-brown.gif", "my-lover.gif", "happy1.jpeg"];
+    imagesToPreload.forEach(image => { const img = new Image(); img.src = image; });
 
-    imagesToPreload.forEach(image => {
-        const img = new Image();
-        img.src = image;
-    });
+    // --- LECTURE DES PARAMETRES DANS L'URL ---
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode');
-    let selectedGender = 'f';
-    let currentTab = 'love';
+    let selectedGender = 'f'; // Par défaut : Féminin
+    let currentTab = 'love';  // Par défaut : Amoureux
 
+    // Au chargement de la page, on décide quoi afficher
     window.onload = () => {
-        if (!mode) document.getElementById('setupScreen').classList.remove('hidden');
-        else if (mode === 'love') setupLoveGame();
-        else if (mode === 'family') setupFamilyLetter();
+        if (!mode) document.getElementById('setupScreen').classList.remove('hidden'); // Ecran création
+        else if (mode === 'love') setupLoveGame(); // Lance le mini-jeu
+        else if (mode === 'family') setupFamilyLetter(); // Affiche la lettre directement
     };
 
+    // Change d'onglet (Amoureux ou Famille)
     function switchTab(tab) {
         currentTab = tab;
         document.getElementById('tab-love').className = tab === 'love' ? 'flex-1 py-3 rounded-xl font-bold text-xs active-tab' : 'flex-1 py-3 rounded-xl font-bold text-xs bg-transparent';
@@ -129,52 +135,46 @@
         document.getElementById('form-family').classList.toggle('hidden', tab !== 'family');
     }
 
+    // Définit le genre (Valentin/Valentine)
     function setGender(g) {
         selectedGender = g;
         document.getElementById('btnF').className = g === 'f' ? 'flex-1 p-3 rounded-xl border-2 border-rose-500 bg-rose-500 text-white font-bold text-[10px] uppercase' : 'flex-1 p-3 rounded-xl border-2 border-rose-500 text-rose-500 bg-white font-bold text-[10px] uppercase';
         document.getElementById('btnM').className = g === 'm' ? 'flex-1 p-3 rounded-xl border-2 border-rose-500 bg-rose-500 text-white font-bold text-[10px] uppercase' : 'flex-1 p-3 rounded-xl border-2 border-rose-500 text-rose-500 bg-white font-bold text-[10px] uppercase';
     }
 
-   function generateLink() {
-    let from, to, msg;
-    if(currentTab === 'love') {
-        from = document.getElementById('fromLove').value;
-        to = document.getElementById('toLove').value;
-        msg = document.getElementById('msgLove').value;
-    } else {
-        from = document.getElementById('fromFam').value;
-        to = document.getElementById('toFam').value;
-        msg = document.getElementById('msgFam').value;
-    }
+    // Génère l'URL unique et la copie dans le presse-papier
+    function generateLink() {
+        let from, to, msg;
+        if(currentTab === 'love') {
+            from = document.getElementById('fromLove').value;
+            to = document.getElementById('toLove').value;
+            msg = document.getElementById('msgLove').value;
+        } else {
+            from = document.getElementById('fromFam').value;
+            to = document.getElementById('toFam').value;
+            msg = document.getElementById('msgFam').value;
+        }
 
-    if(!from || !to || !msg) return alert("Remplis tous les champs ! 🧸");
-
-    const baseUrl = window.location.origin + window.location.pathname;
-    
-    // --- verifier le genre pour l'affichage des noms ---
-    // On ajoute &gender= à la fin de l'URL
-    let finalUrl = `${baseUrl}?mode=${currentTab}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&msg=${encodeURIComponent(msg)}`;
-    
-    if(currentTab === 'love') {
-        finalUrl += `&gender=${selectedGender}`;
-    }
-    navigator.clipboard.writeText(finalUrl).then(() => {
-        document.getElementById('successModal').classList.remove('hidden');
-    });
-}
-
-        // POPUPS DE VERIFICATION SPECIFIQUES
+        // Vérifications simples
         if(!from) return alert("Hé ! Tu as oublié de dire qui tu es (Ton nom). 🧸");
         if(!to) return alert("A qui est destiné ce message ? Remplis le nom ! 🧸");
         if(!msg) return alert("Le message est vide ! Écris quelque chose de gentil. ✨");
 
+        // Construction de l'URL avec les données encodées
         const baseUrl = window.location.origin + window.location.pathname;
         let finalUrl = `${baseUrl}?mode=${currentTab}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&msg=${encodeURIComponent(msg)}`;
+        
+        if(currentTab === 'love') {
+            finalUrl += `&gender=${selectedGender}`;
+        }
+
+        // Copie automatique
         navigator.clipboard.writeText(finalUrl).then(() => {
             document.getElementById('successModal').classList.remove('hidden');
         });
     }
 
+    // --- LOGIQUE DU MINI-JEU (Ours et Bouton fuyant) ---
     function setupLoveGame() {
         document.getElementById('loveGame').classList.remove('hidden');
         document.getElementById('loveFrom').textContent = urlParams.get('from');
@@ -190,27 +190,25 @@
         let refusCount = 0; 
         let scale = 1;
 
+        // Quand on clique sur NON
         noBtn.addEventListener('click', () => {
             refusCount++;
-            scale += 0.4;
+            scale += 0.4; // Le bouton OUI grossit
             yesBtn.style.transform = `scale(${scale})`;
             yesBtn.style.zIndex = "100";
-
-            let imgIndex = Math.min(refusCount - 1, sadImages.length - 1);
-            bearImg.src = sadImages[imgIndex];
-
-            let textIndex = Math.min(refusCount - 1, noTexts.length - 1);
-            noBtn.textContent = noTexts[textIndex];
-
-            const x = Math.random() * (window.innerWidth - 120);
-            const y = Math.random() * (window.innerHeight - 120);
+            // L'ours devient triste
+            bearImg.src = sadImages[Math.min(refusCount - 1, sadImages.length - 1)];
+            // Le texte change
+            noBtn.textContent = noTexts[Math.min(refusCount - 1, noTexts.length - 1)];
+            // Le bouton NON se téléporte ailleurs
             noBtn.style.position = 'fixed';
-            noBtn.style.left = x + 'px';
-            noBtn.style.top = y + 'px';
-
+            noBtn.style.left = Math.random() * (window.innerWidth - 120) + 'px';
+            noBtn.style.top = Math.random() * (window.innerHeight - 120) + 'px';
+            // Disparition totale après 12 refus
             if(refusCount >= 12) noBtn.style.display = 'none';
         });
 
+        // Quand on clique sur OUI
         yesBtn.addEventListener('click', () => {
             bearImg.src = (g === "m") ? "cony-brown.gif" : "my-lover.gif";
             document.getElementById('buttonZone').classList.add('hidden');
@@ -219,50 +217,46 @@
         });
     }
 
+    // --- LOGIQUE DE LA LETTRE ---
     function setupFamilyLetter() {
-      document.getElementById('familyLetter').classList.remove('hidden');
+        document.getElementById('familyLetter').classList.remove('hidden');
         document.getElementById('familyTo').textContent = urlParams.get('to');
         document.getElementById('familyFrom').textContent = urlParams.get('from');
         document.getElementById('scroller').textContent = urlParams.get('msg');
-        // GESTION DU SCROLL ET DE LA SIGNATURE
+        
+        // Timer pour afficher la fin après l'animation de scroll (10 secondes)
         setTimeout(() => {
             const letterEnd = document.getElementById('letterEnd');
             const scroller = document.getElementById('scroller');
             const letterBody = document.getElementById('letterBody');
-
             letterEnd.classList.remove('hidden'); 
-            letterBody.classList.add('scroll-active');
-            
+            letterBody.classList.add('scroll-active'); // Permet de scroller manuellement à la fin
             scroller.style.animation = "none";
             scroller.style.top = "0";
-
-            // Descendre doucement vers la signature
             letterBody.scrollTo({ top: letterBody.scrollHeight, behavior: 'smooth' });
         }, 10000); 
     }
 
+    // Transition entre le Jeu et la Lettre
     function showLetterFromGame() {
         document.getElementById('loveGame').classList.add('hidden');
         setupFamilyLetter();
     }
 
+    // Retour au début
     function resetToHome() { window.location.href = window.location.origin + window.location.pathname; }
+    
+    // Fermeture de la modal (redirige vers vide pour éviter les renvois accidentels)
     function closeSuccessModal() {
-        // 1. On cache la modal
         document.getElementById('successModal').classList.add('hidden');
-        
-        // 2. On redirige vers une page vide ("about:blank") 
-        // ou vers l'accueil vide du site
         window.location.href = "about:blank"; 
     }
+
+    // Déblocage de l'audio (les navigateurs bloquent l'audio automatique sans interaction)
     document.addEventListener('click', () => {
         const audio = document.getElementById('bgMusic');
         if(audio.paused) { audio.volume = 0.2; audio.play(); }
     }, {once: true});
 </script>
 </body>
-
 </html>
-
-
-

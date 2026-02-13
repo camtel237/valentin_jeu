@@ -103,6 +103,13 @@
 </div>
 
 <script>
+    // --- Préchargement des images ---
+    const imagesToPreload = ["sad1.jpeg", "sad2.jpeg", "sad3.jpeg", "sad4.jpeg", "cony-brown.gif", "my-lover.gif", "happy1.jpeg"];
+
+    imagesToPreload.forEach(image => {
+        const img = new Image();
+        img.src = image;
+    });
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode');
     let selectedGender = 'f';
@@ -241,4 +248,5 @@
     }, {once: true});
 </script>
 </body>
+
 </html>

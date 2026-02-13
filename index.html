@@ -136,7 +136,7 @@
     }
 
     function generateLink() {
-        let from, to, msg;
+     let from, to, msg;
         if(currentTab === 'love') {
             from = document.getElementById('fromLove').value;
             to = document.getElementById('toLove').value;
@@ -153,8 +153,10 @@
         if(!msg) return alert("Le message est vide ! Écris quelque chose de gentil. ✨");
 
         const baseUrl = window.location.origin + window.location.pathname;
-        let finalUrl = `${baseUrl}?mode=${currentTab}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&msg=${encodeURIComponent(msg)}`;
-        if(currentTab === 'love') finalUrl += `&gender=${selectedGender}`;
+        // On compresse le message avec btoa (Base64) pour qu'il soit plus court et "codé"
+        const compressedMsg = btoa(unescape(encodeURIComponent(msg)));
+
+        let finalUrl = `${baseUrl}?m=${currentTab}&f=${encodeURIComponent(from)}&t=${encodeURIComponent(to)}&s=${compressedMsg}`;        if(currentTab === 'love') finalUrl += `&gender=${selectedGender}`;
 
         navigator.clipboard.writeText(finalUrl).then(() => {
             document.getElementById('successModal').classList.remove('hidden');
@@ -206,10 +208,14 @@
     }
 
     function setupFamilyLetter() {
-        document.getElementById('familyLetter').classList.remove('hidden');
-        document.getElementById('familyTo').textContent = urlParams.get('to');
-        document.getElementById('familyFrom').textContent = urlParams.get('from');
-        document.getElementById('scroller').textContent = urlParams.get('msg');
+       document.getElementById('familyLetter').classList.remove('hidden');
+        document.getElementById('familyTo').textContent = urlParams.get('t');
+        document.getElementById('familyFrom').textContent = urlParams.get('f');
+        
+        try {
+            const decoded = decodeURIComponent(escape(atob(urlParams.get('s'))));
+            document.getElementById('scroller').textContent = decoded;
+        } catch(e) { document.getElementById('scroller').textContent = urlParams.get('s'); }
         
         // GESTION DU SCROLL ET DE LA SIGNATURE
         setTimeout(() => {
@@ -250,3 +256,4 @@
 </body>
 
 </html>
+

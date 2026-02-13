@@ -153,11 +153,7 @@
         if(!msg) return alert("Le message est vide ! Écris quelque chose de gentil. ✨");
 
         const baseUrl = window.location.origin + window.location.pathname;
-        // On compresse le message avec btoa (Base64) pour qu'il soit plus court et "codé"
-        const compressedMsg = btoa(unescape(encodeURIComponent(msg)));
-
-        let finalUrl = `${baseUrl}?m=${currentTab}&f=${encodeURIComponent(from)}&t=${encodeURIComponent(to)}&s=${compressedMsg}`;        if(currentTab === 'love') finalUrl += `&gender=${selectedGender}`;
-
+        let finalUrl = `${baseUrl}?mode=${currentTab}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&msg=${encodeURIComponent(msg)}`;
         navigator.clipboard.writeText(finalUrl).then(() => {
             document.getElementById('successModal').classList.remove('hidden');
         });
@@ -208,15 +204,10 @@
     }
 
     function setupFamilyLetter() {
-       document.getElementById('familyLetter').classList.remove('hidden');
-        document.getElementById('familyTo').textContent = urlParams.get('t');
-        document.getElementById('familyFrom').textContent = urlParams.get('f');
-        
-        try {
-            const decoded = decodeURIComponent(escape(atob(urlParams.get('s'))));
-            document.getElementById('scroller').textContent = decoded;
-        } catch(e) { document.getElementById('scroller').textContent = urlParams.get('s'); }
-        
+      document.getElementById('familyLetter').classList.remove('hidden');
+        document.getElementById('familyTo').textContent = urlParams.get('to');
+        document.getElementById('familyFrom').textContent = urlParams.get('from');
+        document.getElementById('scroller').textContent = urlParams.get('msg');
         // GESTION DU SCROLL ET DE LA SIGNATURE
         setTimeout(() => {
             const letterEnd = document.getElementById('letterEnd');
@@ -256,4 +247,5 @@
 </body>
 
 </html>
+
 

@@ -135,17 +135,33 @@
         document.getElementById('btnM').className = g === 'm' ? 'flex-1 p-3 rounded-xl border-2 border-rose-500 bg-rose-500 text-white font-bold text-[10px] uppercase' : 'flex-1 p-3 rounded-xl border-2 border-rose-500 text-rose-500 bg-white font-bold text-[10px] uppercase';
     }
 
-    function generateLink() {
-     let from, to, msg;
-        if(currentTab === 'love') {
-            from = document.getElementById('fromLove').value;
-            to = document.getElementById('toLove').value;
-            msg = document.getElementById('msgLove').value;
-        } else {
-            from = document.getElementById('fromFam').value;
-            to = document.getElementById('toFam').value;
-            msg = document.getElementById('msgFam').value;
-        }
+   function generateLink() {
+    let from, to, msg;
+    if(currentTab === 'love') {
+        from = document.getElementById('fromLove').value;
+        to = document.getElementById('toLove').value;
+        msg = document.getElementById('msgLove').value;
+    } else {
+        from = document.getElementById('fromFam').value;
+        to = document.getElementById('toFam').value;
+        msg = document.getElementById('msgFam').value;
+    }
+
+    if(!from || !to || !msg) return alert("Remplis tous les champs ! 🧸");
+
+    const baseUrl = window.location.origin + window.location.pathname;
+    
+    // --- verifier le genre pour l'affichage des noms ---
+    // On ajoute &gender= à la fin de l'URL
+    let finalUrl = `${baseUrl}?mode=${currentTab}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&msg=${encodeURIComponent(msg)}`;
+    
+    if(currentTab === 'love') {
+        finalUrl += `&gender=${selectedGender}`;
+    }
+    navigator.clipboard.writeText(finalUrl).then(() => {
+        document.getElementById('successModal').classList.remove('hidden');
+    });
+}
 
         // POPUPS DE VERIFICATION SPECIFIQUES
         if(!from) return alert("Hé ! Tu as oublié de dire qui tu es (Ton nom). 🧸");
@@ -247,5 +263,6 @@
 </body>
 
 </html>
+
 
 
